@@ -38,5 +38,3 @@ spec:
     - github:
         secret: 71900144d2c4c1dd
       type: GitHub
-status:
-  lastVersion: 1

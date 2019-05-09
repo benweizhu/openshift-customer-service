@@ -1,0 +1,54 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: customer-service
+  name: customer-service
+  namespace: customer
+spec:
+  replicas: 1
+  selector:
+    deploymentconfig: customer-service
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        app: customer-service
+        deploymentconfig: customer-service
+    spec:
+      containers:
+        - image: >-
+            172.30.1.1:5000/customer/customer-service
+          imagePullPolicy: Always
+          name: customer-service
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - customer-service
+        from:
+          kind: ImageStreamTag
+          name: 'customer-service:latest'
+          namespace: customer
+      type: ImageChange
+    - type: ConfigChange
